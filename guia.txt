@@ -1,0 +1,111 @@
+COMPONENTS OF DIDACTIC SEQUENCE	CRITERIA OF EXCELLENCE AND QUALITY THAT EACH COMPONENT OF THE DIDACTIC SEQUENCE MUST HAVE
+	
+1.	PRESENTATION	Los estudiantes participarán en un proyecto STEM interdisciplinario que integra Tecnología, Matemáticas y Ciencias Naturales. Trabajando de manera colaborativa, los estudiantes diseñarán, simularán, documentarán y presentarán un sistema robótico funcional que integra sensores, actuadores, comunicación inalámbrica (WiFi) y una interfaz web para monitoreo y control. Usando Wokwi (simulador), JavaScript, HTML, CSS y Visual Studio Code, los equipos crearán una solución automatizada (riego inteligente, sistema de seguridad, clasificación de residuos o monitoreo ambiental) que aborde un problema real de su comunidad. A lo largo del proyecto, los estudiantes aplicarán conceptos relacionados con robótica, programación, desarrollo web, comunicación inalámbrica, gestión de datos, ética y los Objetivos de Desarrollo Sostenible (ODS).
+2.	PHASE 1.	HOME – PRESENTATION OF THE SEQUENCE TO STUDENTS
+	Term Lenght: July 10th – September 1st.
+	Inicio:
+• Introducción a la integración de sistemas robóticos con aplicaciones web.
+• Identificación de problemas comunitarios que pueden resolverse con automatización.
+• Presentación del desafío del proyecto: "Diseñar un sistema robótico que resuelva un problema comunitario."
+	Desarrollo:
+• Exploración de sensores, actuadores y microcontroladores usando el simulador Wokwi.
+• Investigación de comunicación inalámbrica (WiFi) para transmisión de datos.
+• Diseño de la arquitectura del sistema a través de bocetos y documentos de planificación.
+• Implementación y simulación del sistema robótico con Wokwi.
+• Desarrollo de una interfaz web para monitoreo y control.
+• Pruebas, solución de problemas y mejora del sistema.
+• Documentación del proceso y resultados (estándares APA).
+	Implementación y Evaluación:
+• Presentación final y demostración del sistema funcional.
+• Evaluación a través de rúbricas, listas de verificación, autoevaluación y coevaluación.
+• Debate ético sobre el impacto social y ambiental de la automatización.
+• Reflexión sobre tecnología, ética y desarrollo sostenible.
+3.	PHASE 2.	ACTIVITIES DEVELOPMENT
+3.1.	DIDACTIC STRATEGIES	✓ Aprendizaje Basado en Proyectos (ABP).
+✓ Metodología STEM.
+✓ Aprendizaje colaborativo.
+✓ Aprendizaje basado en simulación.
+✓ Programación en pares.
+✓ Revisión de código y depuración.
+✓ Pensamiento computacional a través de actividades de programación.
+✓ Presentaciones orales y retroalimentación.
+✓ Enfoque constructivista: aprender haciendo.
+✓ Debate y reflexión ética
+3.2.	EDUCATIONAL RESOURCES AND TEACHING MEDIA	✓ Simulador Wokwi (
+https://wokwi.com/
+).
+✓ Visual Studio Code con Live Server, Prettier y extensiones de JavaScript.
+✓ JavaScript, HTML, CSS.
+✓ Chart.js para gráficos dinámicos.
+✓ Navegadores web (Chrome, Edge) con Herramientas de Desarrollo.
+✓ Plantillas de proyectos y ejemplos de código.
+✓ Rúbricas de evaluación y formularios de autoevaluación.
+✓ Materiales de referencia de los ODS (sitio web de la ONU).
+✓ MDN Web Docs como referencia técnica.
+✓ Padlet para el debate ético.
+✓ Guía de formato APA.
+3.3.	EVALUATION TECHNIQUES	✓ Observación directa.
+✓ Evaluación basada en el desempeño (funcionalidad de la simulación).
+✓ Evaluación del proyecto.
+✓ Revisión del portafolio.
+✓ Autoevaluación y coevaluación.
+✓ Presentaciones orales.
+✓ Análisis del producto (sistema funcional).
+✓ Participación en debate ético.
+3.4.	EVALUATION INSTRUMENTS	✓ Rúbrica analítica (calidad del código, funcionalidad, documentación).
+✓ Lista de verificación de observación.
+✓ Registros anecdóticos.
+✓ Formulario de seguimiento de progreso del proyecto.
+✓ Rúbrica de evaluación del producto final.
+✓ Lista de verificación para presentaciones.
+✓ Rúbrica de autoevaluación.
+✓ Rúbrica de participación en debate.
+4.	PHASE 3.	RESULTS OF PREPARATION FOR THE DIDACTIC SEQUENCE
+	✓ Bocetos y diagramas de la arquitectura del sistema.
+✓ Bitácora del equipo de proyecto.
+✓ Código completo de la simulación en Wokwi.
+✓ Interfaz web funcional (tablero de control).
+✓ Capturas de pantalla y grabaciones de pantalla del sistema.
+✓ Artículo en formato APA (introducción, metodología, resultados, conclusiones, referencias).
+✓ Informe de reflexión sobre los ODS.
+✓ Presentación oral y pitch.
+✓ Formularios de autoevaluación y coevaluación.
+✓ Contribuciones al debate ético (Padlet/foro).
+✓ Portafolio STEM final.
+5.	BIBLIOGRAPHY AND CYBERGRAPHY USED FOR THE DESIGN OF THE DIDACTIC SEQUENCE	• Documentación de Wokwi – 
+https://docs.wokwi.com/
+
+• MDN Web Docs – 
+https://developer.mozilla.org/
+
+• W3Schools – 
+https://www.w3schools.com/
+
+• 
+JavaScript.info
+ – 
+https://javascript.info/
+
+• Chart.js – 
+https://www.chartjs.org/
+
+• Visual Studio Code – 
+https://code.visualstudio.com/
+
+• Naciones Unidas ODS – 
+https://sdgs.un.org/goals
+
+• Estándares ISTE – 
+https://iste.org/
+
+• PBLWorks – 
+https://www.pblworks.org/
+
+• STEM Teaching Tools – 
+https://stemteachingtools.org/
+
+• Referencia de Arduino – 
+https://www.arduino.cc/reference
+
+• Estilo APA – 
+https://apastyle.apa.org

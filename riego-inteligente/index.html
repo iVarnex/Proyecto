@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sistema de Riego Inteligente | Tablero de Control</title>
+<meta name="description" content="Tablero de control web para un sistema de riego automatizado con sensores, actuadores y comunicación inalámbrica (proyecto STEM)." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B1%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/styles.css" />
+<link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+
+<a class="skip-link" href="#main">Saltar al contenido principal</a>
+
+<header class="app-header">
+  <div class="brand">
+    <span class="brand-icon" aria-hidden="true">🌱</span>
+    <div>
+      <h1>Riego Inteligente</h1>
+      <p class="subtitle">Proyecto STEM &middot; Monitoreo y control automatizado</p>
+    </div>
+  </div>
+
+  <div class="header-actions">
+    <span id="healthChip" class="health-chip" title="Índice de salud del sistema">
+      <span class="health-ring" id="healthRing" aria-hidden="true"><span id="healthScore">--</span></span>
+      <span class="health-label">Salud<br><strong id="healthWord">Evaluando</strong></span>
+    </span>
+
+    <span id="connStatus" class="badge badge--warning" role="status" aria-live="polite">
+      <span class="badge-dot" aria-hidden="true"></span>
+      Simulación activa
+    </span>
+
+    <button id="paletteBtn" class="cmd-hint" type="button" aria-label="Abrir paleta de comandos">
+      <span>Comandos</span><kbd>Ctrl</kbd><kbd>K</kbd>
+    </button>
+
+    <button id="aboutToggle" class="icon-btn" type="button" aria-label="Acerca del proyecto y equipo" aria-haspopup="dialog">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>
+    </button>
+    <button id="themeToggle" class="icon-btn" type="button" aria-label="Cambiar tema claro/oscuro" aria-pressed="false">
+      <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- Barra de herramientas: simulación + escenarios -->
+  <div class="toolbar">
+    <div class="toolbar-group">
+      <span class="toolbar-title">Simulación</span>
+      <button id="playPause" class="tool-btn tool-btn--primary" type="button" aria-pressed="true">
+        <span id="playPauseIcon" aria-hidden="true">⏸</span>
+        <span id="playPauseLabel">Pausar</span>
+      </button>
+      <div class="segmented segmented--sm" role="radiogroup" aria-label="Velocidad de simulación">
+        <button class="segmented-btn is-active" type="button" role="radio" aria-checked="true" data-speed="1">1×</button>
+        <button class="segmented-btn" type="button" role="radio" aria-checked="false" data-speed="2">2×</button>
+        <button class="segmented-btn" type="button" role="radio" aria-checked="false" data-speed="5">5×</button>
+      </div>
+      <button id="stepOnce" class="tool-btn" type="button" title="Avanzar una lectura">Paso</button>
+    </div>
+
+    <div class="toolbar-group">
+      <span class="toolbar-title">Escenario</span>
+      <div class="chip-row" role="radiogroup" aria-label="Escenario ambiental">
+        <button class="chip is-active" type="button" role="radio" aria-checked="true" data-scenario="normal">Normal</button>
+        <button class="chip" type="button" role="radio" aria-checked="false" data-scenario="heat">Ola de calor</button>
+        <button class="chip" type="button" role="radio" aria-checked="false" data-scenario="rain">Lluvia</button>
+        <button class="chip" type="button" role="radio" aria-checked="false" data-scenario="leak">Fuga en tanque</button>
+        <button class="chip" type="button" role="radio" aria-checked="false" data-scenario="fault">Falla de sensor</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banner de alerta -->
+  <div id="alertBanner" class="alert-banner" hidden>
+    <span class="alert-icon" aria-hidden="true">⚠️</span>
+    <div class="alert-text">
+      <strong>Humedad de suelo baja.</strong>
+      <span id="alertDetail">El sistema activó el riego automático.</span>
+    </div>
+    <button id="alertDismiss" class="icon-btn icon-btn--ghost" type="button" aria-label="Cerrar alerta">✕</button>
+  </div>
+
+  <section class="layout">
+
+    <!-- Columna izquierda: sensores + control -->
+    <div class="col col--left">
+
+      <section class="card-grid" aria-label="Lecturas de sensores en tiempo real">
+        <article class="stat-card" data-metric="soil">
+          <div class="stat-head">
+            <span class="stat-icon" aria-hidden="true">💧</span>
+            <h2>Humedad de suelo</h2>
+          </div>
+          <p class="stat-value"><span id="soilValue">--</span><span class="stat-unit">%</span></p>
+          <p class="stat-sub" id="soilStatus">Leyendo sensor…</p>
+          <div class="sparkline-wrap"><canvas id="soilSpark" height="28"></canvas></div>
+        </article>
+
+        <article class="stat-card" data-metric="temp">
+          <div class="stat-head">
+            <span class="stat-icon" aria-hidden="true">🌡️</span>
+            <h2>Temperatura</h2>
+          </div>
+          <p class="stat-value"><span id="tempValue">--</span><span class="stat-unit">°C</span></p>
+          <p class="stat-sub" id="tempStatus">Leyendo sensor…</p>
+        </article>
+
+        <article class="stat-card" data-metric="humidity">
+          <div class="stat-head">
+            <span class="stat-icon" aria-hidden="true">🌫️</span>
+            <h2>Humedad ambiente</h2>
+          </div>
+          <p class="stat-value"><span id="humidityValue">--</span><span class="stat-unit">%</span></p>
+          <p class="stat-sub" id="humidityStatus">Leyendo sensor…</p>
+        </article>
+
+        <article class="stat-card" data-metric="tank">
+          <div class="stat-head">
+            <span class="stat-icon" aria-hidden="true">🛢️</span>
+            <h2>Nivel del tanque</h2>
+          </div>
+          <p class="stat-value"><span id="tankValue">--</span><span class="stat-unit">%</span></p>
+          <p class="stat-sub" id="tankStatus">Leyendo sensor…</p>
+        </article>
+      </section>
+
+      <section class="panel" aria-labelledby="controlTitle">
+        <h2 id="controlTitle">Panel de control</h2>
+
+        <div class="control-row">
+          <div class="control-label">
+            <span>Modo de operación</span>
+            <span class="hint">Automático: riega según el umbral. Manual: tú decides.</span>
+          </div>
+          <div class="segmented" role="radiogroup" aria-label="Modo de operación">
+            <button id="modeAuto" class="segmented-btn is-active" type="button" role="radio" aria-checked="true">Automático</button>
+            <button id="modeManual" class="segmented-btn" type="button" role="radio" aria-checked="false">Manual</button>
+          </div>
+        </div>
+
+        <div class="control-row">
+          <div class="control-label">
+            <label for="thresholdSlider">Umbral mínimo de humedad</label>
+            <span class="hint">La bomba se activa por debajo de este valor</span>
+          </div>
+          <div class="slider-wrap">
+            <input id="thresholdSlider" type="range" min="10" max="70" step="1" value="35" />
+            <output id="thresholdValue" for="thresholdSlider">35%</output>
+          </div>
+        </div>
+
+        <div class="control-row">
+          <div class="control-label">
+            <span>Bomba de riego</span>
+            <span class="hint" id="pumpHint">Controlada automáticamente</span>
+          </div>
+          <button id="pumpToggle" class="pump-btn" type="button" aria-pressed="false" disabled>
+            <span class="pump-dot" aria-hidden="true"></span>
+            <span id="pumpToggleLabel">Apagada</span>
+          </button>
+        </div>
+
+        <div class="control-row">
+          <div class="control-label">
+            <span>Reserva de agua</span>
+            <span class="hint">Recarga manual del tanque al 100%</span>
+          </div>
+          <button id="refillTank" class="tool-btn" type="button">Recargar</button>
+        </div>
+
+        <div class="control-row control-row--footnote">
+          <p>
+            Este panel simula la telemetría WiFi de un microcontrolador (ESP32) programado y
+            probado en <a href="https://wokwi.com/" target="_blank" rel="noopener">Wokwi</a>.
+            En el sistema real, estos valores llegarían por HTTP/WebSocket desde el dispositivo.
+          </p>
+        </div>
+      </section>
+
+      <section class="panel summary-panel" aria-labelledby="summaryTitle">
+        <h2 id="summaryTitle">Resumen del día</h2>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="summary-value" id="irrigationsToday">0</span>
+            <span class="summary-label">Riegos activados</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-value"><span id="pumpMinutesToday">0</span><span class="summary-unit">min</span></span>
+            <span class="summary-label">Bomba activa hoy</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-value"><span id="waterSavedToday">0</span><span class="summary-unit">L</span></span>
+            <span class="summary-label">Agua ahorrada est.</span>
+          </div>
+        </div>
+        <p class="summary-note">Estimación vs. riego manual sin sensores &middot; se reinicia cada día &middot; guardado en este navegador.</p>
+      </section>
+    </div>
+
+    <!-- Columna derecha: asistente + gráfico + bitácora -->
+    <div class="col col--right">
+
+      <!-- Asistente de diagnóstico -->
+      <section class="panel assistant-panel" aria-labelledby="assistantTitle">
+        <div class="panel-head">
+          <div>
+            <h2 id="assistantTitle">
+              <span class="assistant-mark" aria-hidden="true">◆</span>
+              Asistente de diagnóstico
+            </h2>
+            <p class="panel-sub">Sistema experto basado en reglas &middot; <span id="ruleCount">0</span> reglas auditables</p>
+          </div>
+          <button id="assistantToggle" class="text-btn" type="button" aria-expanded="true">Ocultar</button>
+        </div>
+        <div id="assistantBody" class="assistant-body" aria-live="polite">
+          <!-- generado por JS -->
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="chartTitle">
+        <div class="panel-head">
+          <div>
+            <h2 id="chartTitle">Humedad de suelo en el tiempo</h2>
+            <p class="panel-sub" id="chartSub">Actualizado cada 2 segundos</p>
+          </div>
+          <div class="panel-head-actions">
+            <div class="segmented segmented--sm" role="radiogroup" aria-label="Rango del gráfico">
+              <button class="segmented-btn" type="button" role="radio" aria-checked="false" data-range="30">30</button>
+              <button class="segmented-btn is-active" type="button" role="radio" aria-checked="true" data-range="60">60</button>
+              <button class="segmented-btn" type="button" role="radio" aria-checked="false" data-range="120">120</button>
+              <button class="segmented-btn" type="button" role="radio" aria-checked="false" data-range="all">Todo</button>
+            </div>
+            <button id="viewToggle" class="text-btn" type="button" aria-pressed="false">Ver tabla</button>
+          </div>
+        </div>
+
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-swatch legend-swatch--line"></span>Humedad de suelo</span>
+          <span class="legend-item"><span class="legend-swatch legend-swatch--dashed"></span>Umbral mínimo</span>
+        </div>
+
+        <div id="chartView" class="chart-wrap">
+          <canvas id="moistureChart" role="img" aria-label="Gráfico de línea de humedad de suelo en el tiempo, comparado con el umbral mínimo configurado"></canvas>
+        </div>
+
+        <div id="tableView" class="table-wrap table-wrap--scroll" hidden>
+          <table>
+            <caption class="sr-only">Datos de humedad de suelo por lectura</caption>
+            <thead>
+              <tr>
+                <th scope="col">Hora</th>
+                <th scope="col">Humedad</th>
+                <th scope="col">Umbral</th>
+                <th scope="col">Estado</th>
+              </tr>
+            </thead>
+            <tbody id="dataBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="logTitle">
+        <div class="panel-head">
+          <div>
+            <h2 id="logTitle">Bitácora de eventos</h2>
+            <p class="panel-sub"><span id="logCount">0</span> registros &middot; evidencia del proyecto</p>
+          </div>
+          <div class="panel-head-actions">
+            <div class="menu-wrap">
+              <button id="exportBtn" class="text-btn" type="button" aria-haspopup="menu" aria-expanded="false">Exportar ▾</button>
+              <div id="exportMenu" class="menu" role="menu" hidden>
+                <button class="menu-item" role="menuitem" data-export="log-csv">Bitácora (CSV)</button>
+                <button class="menu-item" role="menuitem" data-export="telemetry-csv">Telemetría (CSV)</button>
+                <button class="menu-item" role="menuitem" data-export="json">Proyecto completo (JSON)</button>
+                <button class="menu-item" role="menuitem" data-export="report">Informe imprimible</button>
+              </div>
+            </div>
+            <button id="clearLog" class="text-btn text-btn--muted" type="button">Limpiar</button>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <label class="sr-only" for="logFilter">Filtrar bitácora</label>
+          <input id="logFilter" type="search" placeholder="Buscar en la bitácora…" autocomplete="off" />
+          <div class="segmented segmented--sm" role="radiogroup" aria-label="Filtrar por estado">
+            <button class="segmented-btn is-active" type="button" role="radio" aria-checked="true" data-logfilter="all">Todos</button>
+            <button class="segmented-btn" type="button" role="radio" aria-checked="false" data-logfilter="critical">Críticos</button>
+            <button class="segmented-btn" type="button" role="radio" aria-checked="false" data-logfilter="warning">Atención</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Hora</th>
+                <th scope="col">Evento</th>
+                <th scope="col">Estado</th>
+              </tr>
+            </thead>
+            <tbody id="logBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </section>
+
+  <footer class="app-footer">
+    <p>
+      Proyecto STEM interdisciplinario &middot; Contribuye a
+      <strong>ODS 6</strong> (Agua limpia y saneamiento) y <strong>ODS 12</strong> (Producción y consumo responsables).
+    </p>
+    <p class="credits">
+      Desarrollado por <strong>Juan Gutiérrez</strong> y <strong>Camilo Escobar</strong>
+    </p>
+    <p class="footer-hint">
+      Pulsa <kbd>?</kbd> para ver los atajos de teclado &middot; <kbd>Ctrl</kbd>+<kbd>K</kbd> para la paleta de comandos
+    </p>
+  </footer>
+
+</main>
+
+<!-- Contenedor de notificaciones -->
+<div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="false"></div>
+
+<!-- Paleta de comandos -->
+<div id="paletteOverlay" class="palette-overlay" hidden>
+  <div class="palette" role="dialog" aria-modal="true" aria-label="Paleta de comandos">
+    <div class="palette-input-wrap">
+      <span class="palette-icon" aria-hidden="true">⌘</span>
+      <input id="paletteInput" type="text" placeholder="Escribe un comando…" autocomplete="off" spellcheck="false"
+             role="combobox" aria-expanded="true" aria-controls="paletteList" aria-autocomplete="list" />
+      <kbd>Esc</kbd>
+    </div>
+    <ul id="paletteList" class="palette-list" role="listbox" aria-label="Comandos disponibles"></ul>
+    <div class="palette-foot">
+      <span><kbd>↑</kbd><kbd>↓</kbd> navegar</span>
+      <span><kbd>Enter</kbd> ejecutar</span>
+      <span><kbd>Esc</kbd> cerrar</span>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: atajos de teclado -->
+<div id="shortcutsModal" class="modal-overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="shortcutsTitle">
+    <div class="modal-head">
+      <h2 id="shortcutsTitle">Atajos de teclado</h2>
+      <button id="shortcutsClose" class="icon-btn icon-btn--ghost" type="button" aria-label="Cerrar">✕</button>
+    </div>
+    <dl class="shortcut-list" id="shortcutList"></dl>
+  </div>
+</div>
+
+<!-- Modal: Acerca del proyecto / Equipo -->
+<div id="aboutModal" class="modal-overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle">
+    <div class="modal-head">
+      <h2 id="aboutModalTitle">Acerca del proyecto</h2>
+      <button id="aboutClose" class="icon-btn icon-btn--ghost" type="button" aria-label="Cerrar">✕</button>
+    </div>
+    <p>
+      Tablero web de monitoreo y control para un sistema de <strong>riego inteligente</strong>,
+      desarrollado como parte de un proyecto STEM interdisciplinario que integra robótica
+      (sensores y actuadores simulados en Wokwi), comunicación inalámbrica WiFi y desarrollo web
+      con HTML, CSS y JavaScript.
+    </p>
+    <div class="ods-badges">
+      <span class="ods-badge">ODS 6 &middot; Agua limpia y saneamiento</span>
+      <span class="ods-badge">ODS 12 &middot; Producción y consumo responsables</span>
+    </div>
+
+    <h3>Cómo usar el tablero</h3>
+    <ol class="steps">
+      <li>
+        <strong>Observa los sensores.</strong>
+        Las cuatro tarjetas muestran la lectura en vivo. El color y el texto bajo
+        cada número indican si el valor está en rango.
+      </li>
+      <li>
+        <strong>Define el umbral.</strong>
+        Mueve el deslizador para fijar la humedad mínima tolerable del cultivo.
+        La línea punteada del gráfico se mueve contigo.
+      </li>
+      <li>
+        <strong>Elige el modo.</strong>
+        En <em>Automático</em> la bomba se activa sola al cruzar el umbral hacia abajo.
+        En <em>Manual</em> el botón de la bomba se habilita para que la controles tú.
+      </li>
+      <li>
+        <strong>Prueba un escenario.</strong>
+        Los escenarios de la barra superior fuerzan condiciones extremas (calor, lluvia,
+        fuga, falla de sensor) para demostrar cómo responde el sistema.
+      </li>
+      <li>
+        <strong>Consulta el asistente.</strong>
+        Analiza la telemetría con reglas explícitas y propone acciones correctivas.
+      </li>
+      <li>
+        <strong>Exporta la evidencia.</strong>
+        Bitácora, telemetría o el proyecto completo, para anexar al informe APA.
+      </li>
+    </ol>
+
+    <h3>Sobre el asistente de diagnóstico</h3>
+    <p class="modal-note">
+      El asistente <strong>no es un modelo de lenguaje ni aprendizaje automático</strong>.
+      Es un <em>sistema experto determinista</em>: cada recomendación nace de una regla
+      escrita explícitamente en <code>js/assistant.js</code>. Puedes leer la condición,
+      predecir la salida y comprobarla — que es justamente el objetivo pedagógico del
+      pensamiento computacional.
+    </p>
+
+    <h3>Equipo de desarrollo</h3>
+    <ul class="team-list">
+      <li class="team-item">
+        <span class="team-avatar">JG</span>
+        <div>
+          <strong>Juan Gutiérrez</strong>
+          <span>Desarrollo &amp; lógica del sistema</span>
+        </div>
+      </li>
+      <li class="team-item">
+        <span class="team-avatar">CE</span>
+        <div>
+          <strong>Camilo Escobar</strong>
+          <span>Desarrollo &amp; lógica del sistema</span>
+        </div>
+      </li>
+    </ul>
+
+    <h3>Datos guardados en este navegador</h3>
+    <p class="modal-note">
+      Preferencia de tema, modo de operación, umbral, bitácora y estadísticas del día se
+      guardan con <code>localStorage</code> para que el tablero recuerde tu configuración
+      al volver a abrirlo.
+    </p>
+    <button id="resetLocalData" class="text-btn text-btn--muted">Borrar datos guardados</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="js/assistant.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
