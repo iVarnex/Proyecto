@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel de facturación</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/print.css">
+</head>
+<body>
+  <!-- No es un <a href="#app">: el hash es el estado del router (js/core/router.js) y
+       "#app" se interpretaría como una ruta inexistente. Es un botón que mueve el foco a mano. -->
+  <button type="button" id="saltar-contenido" class="saltar-contenido">Saltar al contenido</button>
+  <div class="app">
+    <nav class="barra-lateral" aria-label="Navegación principal">
+      <span class="barra-lateral__marca">Facturación</span>
+      <a href="#/">Dashboard</a>
+      <a href="#/clientes">Clientes</a>
+      <a href="#/proyectos">Proyectos</a>
+      <a href="#/horas">Horas</a>
+      <a href="#/facturas">Facturas</a>
+      <a href="#/ajustes">Ajustes</a>
+    </nav>
+    <main id="app" tabindex="-1"></main>
+  </div>
+
+  <noscript>Esta aplicación necesita JavaScript habilitado para funcionar.</noscript>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

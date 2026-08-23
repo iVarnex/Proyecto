@@ -1,0 +1,56 @@
+:root {
+  --texto-xs: 0.75rem;
+  --texto-sm: 0.875rem;
+  --texto-base: 1rem;
+  --texto-lg: 1.25rem;
+  --texto-xl: 1.75rem;
+
+  --e-1: 0.25rem; --e-2: 0.5rem; --e-3: 0.75rem;
+  --e-4: 1rem;    --e-6: 1.5rem; --e-8: 2rem; --e-12: 3rem;
+
+  --radio: 6px;
+
+  --fondo: #fbfbfa;
+  --superficie: #ffffff;
+  --linea: #e4e4e0;
+  --texto: #1c1c1a;
+  --texto-suave: #6b6b66;
+  --acento: #2d5f8a;
+  --acento-suave: #e8f0f7;
+
+  --exito: #2e7d52;
+  --exito-suave: #e6f2ea;
+  --aviso: #b8860b;
+  --aviso-suave: #fbf1dc;
+  --peligro: #b3401f;
+  --peligro-suave: #fbeae4;
+  --info: #3a5f8a;
+  --info-suave: #e8eef6;
+
+  --borde: 1px solid var(--linea);
+  --sombra: 0 2px 10px rgba(0, 0, 0, 0.06);
+  --fuente: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --num: 'SF Mono', 'Cascadia Code', ui-monospace, monospace;
+
+  --duracion-transicion: 150ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fondo: #161614;
+    --superficie: #201f1d;
+    --linea: #34332f;
+    --texto: #ebe9e4;
+    --texto-suave: #9a978f;
+    --acento-suave: #1c2d3a;
+    --exito-suave: #16281e;
+    --aviso-suave: #302509;
+    --peligro-suave: #331810;
+    --info-suave: #172233;
+    --sombra: 0 2px 10px rgba(0, 0, 0, 0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --duracion-transicion: 0ms; }
+}

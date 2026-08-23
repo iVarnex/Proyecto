@@ -1,0 +1,636 @@
+{
+  "schemaVersion": 3,
+  "ajustes": {
+    "negocio": {
+      "nombre": "Juan Gutiérrez & Camilo Escobar",
+      "nit": "900123456-7",
+      "direccion": "Bogotá, Colombia",
+      "email": "contacto@gutierrezescobar.co",
+      "telefono": "300 415 8822",
+      "regimen": "simplificado"
+    },
+    "monedaBase": "COP",
+    "consecutivo": {
+      "prefijo": "FV-",
+      "siguiente": 6,
+      "padding": 4
+    },
+    "impuestos": {
+      "ivaPct": 19,
+      "reteFuentePct": 11,
+      "reteIcaPorMil": 6.9,
+      "aplicarIvaPorDefecto": true
+    },
+    "pago": {
+      "metodos": [
+        {
+          "tipo": "nequi",
+          "etiqueta": "Nequi",
+          "detalle": "300 415 8822"
+        },
+        {
+          "tipo": "paypal",
+          "etiqueta": "PayPal",
+          "detalle": "pagos@gutierrezescobar.co"
+        }
+      ],
+      "diasVencimiento": 15
+    },
+    "ultimoRespaldo": null
+  },
+  "clientes": [
+    {
+      "id": "cli_acme1",
+      "nombre": "Acme S.A.S.",
+      "contacto": "María Pérez",
+      "email": "maria@acme.co",
+      "identificacion": "900555444-1",
+      "pais": "CO",
+      "moneda": "COP",
+      "tarifaHora": 8500000,
+      "notas": "Cliente desde 2025. Factura mensual de mantenimiento.",
+      "activo": true,
+      "creadoEn": "2025-11-03T14:00:00.000Z"
+    },
+    {
+      "id": "cli_nordic1",
+      "nombre": "Nordic Studio",
+      "contacto": "Erik Lindqvist",
+      "email": "erik@nordicstudio.example",
+      "identificacion": "",
+      "pais": "SE",
+      "moneda": "USD",
+      "tarifaHora": 3500,
+      "notas": "Exportación de servicios: sin IVA ni retenciones.",
+      "activo": true,
+      "creadoEn": "2026-02-10T09:30:00.000Z"
+    },
+    {
+      "id": "cli_raiz1",
+      "nombre": "Café Raíz",
+      "contacto": "Luisa Gómez",
+      "email": "luisa@cafraiz.co",
+      "identificacion": "1019876543",
+      "pais": "CO",
+      "moneda": "COP",
+      "tarifaHora": 6000000,
+      "notas": "Emprendimiento local, tarifa preferencial.",
+      "activo": true,
+      "creadoEn": "2026-07-28T11:00:00.000Z"
+    },
+    {
+      "id": "cli_build1",
+      "nombre": "BuildTech Perú",
+      "contacto": "Renzo Salazar",
+      "email": "renzo@buildtech.pe",
+      "identificacion": "",
+      "pais": "PE",
+      "moneda": "PEN",
+      "tarifaHora": 9000,
+      "notas": "Exportación de servicios.",
+      "activo": true,
+      "creadoEn": "2026-07-15T16:00:00.000Z"
+    },
+    {
+      "id": "cli_luna1",
+      "nombre": "Taller Luna",
+      "contacto": "Andrés Rojas",
+      "email": "andres@tallerluna.co",
+      "identificacion": "900222111-5",
+      "pais": "CO",
+      "moneda": "COP",
+      "tarifaHora": 5500000,
+      "notas": "Cliente inactivo desde mayo de 2026.",
+      "activo": false,
+      "creadoEn": "2026-03-20T10:00:00.000Z"
+    }
+  ],
+  "proyectos": [
+    {
+      "id": "pry_acme_portal",
+      "clienteId": "cli_acme1",
+      "nombre": "Rediseño del portal",
+      "tarifaHora": null,
+      "moneda": null,
+      "presupuestoHoras": 60,
+      "estado": "cerrado",
+      "color": "#4f8fd6"
+    },
+    {
+      "id": "pry_acme_mant",
+      "clienteId": "cli_acme1",
+      "nombre": "Mantenimiento mensual",
+      "tarifaHora": null,
+      "moneda": null,
+      "presupuestoHoras": null,
+      "estado": "activo",
+      "color": "#3a7d5c"
+    },
+    {
+      "id": "pry_nordic_landing",
+      "clienteId": "cli_nordic1",
+      "nombre": "Landing de producto",
+      "tarifaHora": null,
+      "moneda": null,
+      "presupuestoHoras": 20,
+      "estado": "cerrado",
+      "color": "#8a5fc7"
+    },
+    {
+      "id": "pry_raiz_marca",
+      "clienteId": "cli_raiz1",
+      "nombre": "Identidad de marca",
+      "tarifaHora": null,
+      "moneda": null,
+      "presupuestoHoras": 30,
+      "estado": "activo",
+      "color": "#c77b3f"
+    },
+    {
+      "id": "pry_build_dash",
+      "clienteId": "cli_build1",
+      "nombre": "Dashboard interno",
+      "tarifaHora": null,
+      "moneda": null,
+      "presupuestoHoras": 25,
+      "estado": "pausado",
+      "color": "#c74f6f"
+    },
+    {
+      "id": "pry_luna_web",
+      "clienteId": "cli_luna1",
+      "nombre": "Sitio web",
+      "tarifaHora": null,
+      "moneda": null,
+      "presupuestoHoras": 15,
+      "estado": "cerrado",
+      "color": "#6b6b66"
+    }
+  ],
+  "registros": [
+    {
+      "id": "reg_a1",
+      "proyectoId": "pry_acme_portal",
+      "fecha": "2026-01-05",
+      "inicioTs": null,
+      "finTs": null,
+      "segundos": 14400,
+      "descripcion": "Diseño de wireframes",
+      "facturable": true,
+      "facturaId": "fac_1"
+    },
+    {
+      "id": "reg_a2",
+      "proyectoId": "pry_acme_portal",
+      "fecha": "2026-01-08",
+      "inicioTs": null,
+      "finTs": null,
+      "segundos": 18000,
+      "descripcion": "Maquetación del header y footer",
+      "facturable": true,
+      "facturaId": "fac_1"
+    },
+    {
+      "id": "reg_a3",
+      "proyectoId": "pry_acme_portal",
+      "fecha": "2026-01-10",
+      "inicioTs": null,
+      "finTs": null,
+      "segundos": 10800,
+      "descripcion": "Formulario de contacto",
+      "facturable": true,
+      "facturaId": "fac_1"
+    },
+    {
+      "id": "reg_a4",
+      "proyectoId": "pry_acme_mant",
+      "fecha": "2026-07-14",
+      "inicioTs": null,
+      "finTs": null,
+      "segundos": 7200,
+      "descripcion": "Actualización de plugins",
+      "facturable": true,
+      "facturaId": "fac_2"
+    },
+    {
+      "id": "reg_a5",
+      "proyectoId": "pry_acme_mant",
+      "fecha": "2026-07-18",
+      "inicioTs": null,
+      "finTs": null,
+      "segundos": 7200,
+      "descripcion": "Corrección de bug en checkout",
+      "facturable": true,
+      "facturaId": "fac_2"
+    },
+    {
+      "id": "reg_a6",
+      "proyectoId": "pry_acme_mant",
+      "fecha": "2026-08-15",
+      "inicioTs": null,
+      "finTs": null,
+      "segundos": 5400,
+      "descripcion": "Revisión de seguridad mensual",
+      "facturable": true,
+      "facturaId": null
+    },
+    {
+      "id": "reg_a7",
+      "proyectoId": "pry_acme_mant",
+      "fecha": "2026-08-20",
+      "inicioTs": null,
+      "finTs": null,
+      "segundos": 3600,
+      "descripcion": "Backup y monitoreo",
+      "facturable": true,
+      "facturaId": null
+    },
+    {
+      "id": "reg_n1",
+      "proyectoId": "pry_nordic_landing",
+      "fecha": "2026-02-20",
+      "inicioTs": null,
+      "finTs": null,
+      "segundos": 10800,
+      "descripcion": "Wireframes",
+      "facturable": true,
+      "facturaId": "fac_3"
+    },
+    {
+      "id": "reg_n2",
+      "proyectoId": "pry_nordic_landing",
+      "fecha": "2026-02-25",
+      "inicioTs": null,
+      "finTs": null,
+      "segundos": 14400,
+      "descripcion": "Desarrollo frontend",
+      "facturable": true,
+      "facturaId": "fac_3"
+    },
+    {
+      "id": "reg_n3",
+      "proyectoId": "pry_nordic_landing",
+      "fecha": "2026-03-01",
+      "inicioTs": null,
+      "finTs": null,
+      "segundos": 9000,
+      "descripcion": "Ajustes de copy y SEO",
+      "facturable": true,
+      "facturaId": "fac_3"
+    },
+    {
+      "id": "reg_r1",
+      "proyectoId": "pry_raiz_marca",
+      "fecha": "2026-08-05",
+      "inicioTs": null,
+      "finTs": null,
+      "segundos": 10800,
+      "descripcion": "Sesión de brief con la clienta",
+      "facturable": false,
+      "facturaId": null
+    },
+    {
+      "id": "reg_r2",
+      "proyectoId": "pry_raiz_marca",
+      "fecha": "2026-08-12",
+      "inicioTs": null,
+      "finTs": null,
+      "segundos": 21600,
+      "descripcion": "Exploración de logotipo",
+      "facturable": true,
+      "facturaId": null
+    },
+    {
+      "id": "reg_b1",
+      "proyectoId": "pry_build_dash",
+      "fecha": "2026-08-01",
+      "inicioTs": null,
+      "finTs": null,
+      "segundos": 14400,
+      "descripcion": "Definición de arquitectura",
+      "facturable": true,
+      "facturaId": "fac_5"
+    },
+    {
+      "id": "reg_b2",
+      "proyectoId": "pry_build_dash",
+      "fecha": "2026-08-06",
+      "inicioTs": null,
+      "finTs": null,
+      "segundos": 18000,
+      "descripcion": "Implementación del dashboard",
+      "facturable": true,
+      "facturaId": "fac_5"
+    },
+    {
+      "id": "reg_l1",
+      "proyectoId": "pry_luna_web",
+      "fecha": "2026-04-02",
+      "inicioTs": null,
+      "finTs": null,
+      "segundos": 21600,
+      "descripcion": "Desarrollo del sitio",
+      "facturable": true,
+      "facturaId": "fac_6"
+    },
+    {
+      "id": "reg_l2",
+      "proyectoId": "pry_luna_web",
+      "fecha": "2026-04-08",
+      "inicioTs": null,
+      "finTs": null,
+      "segundos": 14400,
+      "descripcion": "Ajustes finales",
+      "facturable": true,
+      "facturaId": "fac_6"
+    }
+  ],
+  "facturas": [
+    {
+      "id": "fac_1",
+      "numero": "FV-0001",
+      "clienteId": "cli_acme1",
+      "estado": "pagada",
+      "emitidaEn": "2026-01-12",
+      "venceEn": "2026-01-27",
+      "creadaEn": "2026-01-11",
+      "moneda": "COP",
+      "fx": null,
+      "items": [
+        {
+          "id": "itm_1",
+          "descripcion": "Rediseño del portal — enero",
+          "cantidad": 12,
+          "precioUnitario": 8500000,
+          "registroIds": [
+            "reg_a1",
+            "reg_a2",
+            "reg_a3"
+          ]
+        }
+      ],
+      "descuentoPct": 0,
+      "impuestos": {
+        "ivaPct": 19,
+        "reteFuentePct": 11,
+        "reteIcaPorMil": 6.9
+      },
+      "totales": {
+        "subtotal": 102000000,
+        "descuento": 0,
+        "base": 102000000,
+        "iva": 19380000,
+        "reteFuente": 11220000,
+        "reteIca": 703800,
+        "total": 109456200,
+        "totalEnBase": 109456200
+      },
+      "pagos": [
+        {
+          "id": "pag_1",
+          "fecha": "2026-01-24",
+          "monto": 109456200,
+          "metodo": "nequi",
+          "referencia": "8XJ001"
+        }
+      ],
+      "notas": "Gracias por su confianza."
+    },
+    {
+      "id": "fac_2",
+      "numero": "FV-0002",
+      "clienteId": "cli_acme1",
+      "estado": "enviada",
+      "emitidaEn": "2026-07-20",
+      "venceEn": "2026-08-04",
+      "creadaEn": "2026-07-19",
+      "moneda": "COP",
+      "fx": null,
+      "items": [
+        {
+          "id": "itm_2",
+          "descripcion": "Mantenimiento — julio",
+          "cantidad": 4,
+          "precioUnitario": 8500000,
+          "registroIds": [
+            "reg_a4",
+            "reg_a5"
+          ]
+        }
+      ],
+      "descuentoPct": 0,
+      "impuestos": {
+        "ivaPct": 19,
+        "reteFuentePct": 11,
+        "reteIcaPorMil": 6.9
+      },
+      "totales": {
+        "subtotal": 34000000,
+        "descuento": 0,
+        "base": 34000000,
+        "iva": 6460000,
+        "reteFuente": 3740000,
+        "reteIca": 234600,
+        "total": 36485400,
+        "totalEnBase": 36485400
+      },
+      "pagos": [],
+      "notas": ""
+    },
+    {
+      "id": "fac_3",
+      "numero": "FV-0003",
+      "clienteId": "cli_nordic1",
+      "estado": "pagada",
+      "emitidaEn": "2026-03-08",
+      "venceEn": "2026-03-23",
+      "creadaEn": "2026-03-07",
+      "moneda": "USD",
+      "fx": {
+        "desde": "USD",
+        "hacia": "COP",
+        "tasa": 4050.3,
+        "fuente": "open.er-api",
+        "capturadaEn": "2026-03-08T13:00:00.000Z"
+      },
+      "items": [
+        {
+          "id": "itm_3",
+          "descripcion": "Landing de producto — febrero",
+          "cantidad": 9.5,
+          "precioUnitario": 3500,
+          "registroIds": [
+            "reg_n1",
+            "reg_n2",
+            "reg_n3"
+          ]
+        }
+      ],
+      "descuentoPct": 0,
+      "impuestos": {
+        "ivaPct": 0,
+        "reteFuentePct": 0,
+        "reteIcaPorMil": 0,
+        "motivo": "exportación de servicios"
+      },
+      "totales": {
+        "subtotal": 33250,
+        "descuento": 0,
+        "base": 33250,
+        "iva": 0,
+        "reteFuente": 0,
+        "reteIca": 0,
+        "total": 33250,
+        "totalEnBase": 134672475
+      },
+      "pagos": [
+        {
+          "id": "pag_3",
+          "fecha": "2026-03-15",
+          "monto": 33250,
+          "metodo": "paypal",
+          "referencia": "PP-77213"
+        }
+      ],
+      "notas": "Thank you for your business."
+    },
+    {
+      "id": "fac_4",
+      "numero": null,
+      "clienteId": "cli_raiz1",
+      "estado": "borrador",
+      "emitidaEn": null,
+      "venceEn": null,
+      "creadaEn": "2026-08-18",
+      "moneda": "COP",
+      "fx": null,
+      "items": [
+        {
+          "id": "itm_4",
+          "descripcion": "Diseño de identidad de marca (paquete)",
+          "cantidad": 1,
+          "precioUnitario": 120000000,
+          "registroIds": []
+        }
+      ],
+      "descuentoPct": 0,
+      "impuestos": {
+        "ivaPct": 19,
+        "reteFuentePct": 11,
+        "reteIcaPorMil": 6.9
+      },
+      "totales": null,
+      "pagos": [],
+      "notas": "Incluye logotipo, paleta y tipografía."
+    },
+    {
+      "id": "fac_5",
+      "numero": "FV-0005",
+      "clienteId": "cli_build1",
+      "estado": "enviada",
+      "emitidaEn": "2026-08-10",
+      "venceEn": "2026-08-25",
+      "creadaEn": "2026-08-09",
+      "moneda": "PEN",
+      "fx": {
+        "desde": "PEN",
+        "hacia": "COP",
+        "tasa": 1094.75,
+        "fuente": "manual",
+        "capturadaEn": "2026-08-10T15:00:00.000Z"
+      },
+      "items": [
+        {
+          "id": "itm_5",
+          "descripcion": "Dashboard interno — agosto",
+          "cantidad": 9,
+          "precioUnitario": 9000,
+          "registroIds": [
+            "reg_b1",
+            "reg_b2"
+          ]
+        }
+      ],
+      "descuentoPct": 0,
+      "impuestos": {
+        "ivaPct": 0,
+        "reteFuentePct": 0,
+        "reteIcaPorMil": 0,
+        "motivo": "exportación de servicios"
+      },
+      "totales": {
+        "subtotal": 81000,
+        "descuento": 0,
+        "base": 81000,
+        "iva": 0,
+        "reteFuente": 0,
+        "reteIca": 0,
+        "total": 81000,
+        "totalEnBase": 88674750
+      },
+      "pagos": [
+        {
+          "id": "pag_5",
+          "fecha": "2026-08-15",
+          "monto": 40500,
+          "metodo": "transferencia",
+          "referencia": "BCP-4471"
+        }
+      ],
+      "notas": ""
+    },
+    {
+      "id": "fac_6",
+      "numero": "FV-0004",
+      "clienteId": "cli_luna1",
+      "estado": "anulada",
+      "emitidaEn": "2026-04-12",
+      "venceEn": "2026-04-27",
+      "creadaEn": "2026-04-11",
+      "moneda": "COP",
+      "fx": null,
+      "items": [
+        {
+          "id": "itm_6",
+          "descripcion": "Sitio web — desarrollo y ajustes",
+          "cantidad": 10,
+          "precioUnitario": 5500000,
+          "registroIds": [
+            "reg_l1",
+            "reg_l2"
+          ]
+        }
+      ],
+      "descuentoPct": 0,
+      "impuestos": {
+        "ivaPct": 19,
+        "reteFuentePct": 11,
+        "reteIcaPorMil": 6.9
+      },
+      "totales": {
+        "subtotal": 55000000,
+        "descuento": 0,
+        "base": 55000000,
+        "iva": 10450000,
+        "reteFuente": 6050000,
+        "reteIca": 379500,
+        "total": 59020500,
+        "totalEnBase": 59020500
+      },
+      "pagos": [],
+      "notas": ""
+    }
+  ],
+  "fxCache": {
+    "USD_COP": {
+      "tasa": 4050.3,
+      "ts": 1772974800000,
+      "fuente": "open.er-api"
+    },
+    "PEN_COP": {
+      "tasa": 1094.75,
+      "ts": 1786374000000,
+      "fuente": "manual"
+    }
+  }
+}

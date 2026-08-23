@@ -1,0 +1,21 @@
+@media print {
+  body > *:not(#area-impresion) { display: none !important; }
+
+  @page {
+    size: letter;
+    margin: 18mm 15mm;
+  }
+
+  #area-impresion {
+    display: block !important;
+    color: #000;
+    background: #fff;
+    font-size: 10.5pt;
+  }
+
+  #area-impresion .factura__tabla thead { display: table-header-group; }
+  #area-impresion .factura__tabla tr { break-inside: avoid; }
+  #area-impresion .factura__totales { break-inside: avoid; }
+
+  #area-impresion a[href]::after { content: ""; }
+}

@@ -1,0 +1,47 @@
+*, *::before, *::after { box-sizing: border-box; }
+
+html { color-scheme: light dark; }
+
+body {
+  margin: 0;
+  font-family: var(--fuente);
+  font-size: var(--texto-base);
+  color: var(--texto);
+  background: var(--fondo);
+  line-height: 1.5;
+}
+
+h1, h2, h3 { line-height: 1.25; margin: 0 0 var(--e-2); }
+h1 { font-size: var(--texto-xl); }
+h2 { font-size: var(--texto-lg); }
+p { margin: 0 0 var(--e-2); }
+
+a { color: var(--acento); }
+a:not(.btn) { text-decoration: none; }
+a:not(.btn):hover { text-decoration: underline; }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+
+table { border-collapse: collapse; width: 100%; }
+
+/* Foco visible con teclado, invisible con mouse/touch — sin negociar. */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+.num {
+  text-align: right;
+  font-family: var(--num);
+  font-variant-numeric: tabular-nums;
+}
+
+.punto-color {
+  display: inline-block;
+  width: 0.6em;
+  height: 0.6em;
+  border-radius: 50%;
+}
+
+small { color: var(--texto-suave); }

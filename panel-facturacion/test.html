@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pruebas — dominio</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 2rem; max-width: 720px; margin: 0 auto; }
+    pre { font-size: 0.95rem; line-height: 1.6; }
+    .resumen { font-weight: 700; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Pruebas de <code>domain/</code></h1>
+  <p>Módulos puros: se prueban directamente, sin mocks ni navegador simulado. Incluye también <code>core/db.js:migrar</code>, que es pura aunque viva fuera de <code>domain/</code>.</p>
+  <pre id="salida">Cargando…</pre>
+
+  <script type="module">
+    import { parsear, formatear, multiplicar, porcentaje, repartir, sumar } from './js/domain/money.js';
+    import { calcularTotales, impuestosPorDefecto, IMPUESTOS_EN_CERO } from './js/domain/tax.js';
+    import {
+      segundosTranscurridos, formatearDuracion, horasFacturables, hoyLocal, sumarDias, diasEntre,
+    } from './js/domain/time.js';
+    import { estadoEfectivo, saldoPendiente, siguienteNumero, diasParaVencer } from './js/domain/invoice.js';
+    import { convertir } from './js/domain/fx.js';
+    import { migrar } from './js/core/db.js';
+
+    const pruebas = [];
+    const test = (nombre, fn) => pruebas.push({ nombre, fn });
+    const igual = (a, b, contexto = '') => {
+      if (a !== b) throw new Error(`${contexto ? contexto + ': ' : ''}esperaba ${JSON.stringify(b)}, obtuve ${JSON.stringify(a)}`);
+    };
+
+    /* ---------- money.js: casos de la guía ---------- */
+    test('parsea formato colombiano (85.000,50)', () => igual(parsear('85.000,50', 'COP'), 8500050));
+    test('parsea formato inglés (85,000.50)', () => igual(parsear('85,000.50', 'USD'), 8500050));
+    test('IVA del 19% sobre 100.000', () => igual(porcentaje(100000, 19), 19000));
+    test('reparte 1000 entre 3 sin perder centavos', () => {
+      const p = repartir(1000, [1, 1, 1]);
+      igual(p.reduce((a, b) => a + b, 0), 1000);
+    });
+
+    /* ---------- money.js: separador único ambiguo ----------
+       "1.234" con un solo separador es ambiguo: 1.234 pesos con dos
+       decimales de más, o 1234 pesos agrupados en miles. Se resuelve por
+       la cantidad de dígitos que siguen al separador: exactamente 3 es
+       agrupación de miles (salvo que la parte entera sea "0"). */
+    test('separador único con 3 dígitos es agrupación de miles', () => igual(parsear('1.234', 'COP'), 123400));
+    test('separador único con 2 dígitos es decimal', () => igual(parsear('1.23', 'COP'), 123));
+    test('separador único de coma con 3 dígitos es agrupación de miles', () => igual(parsear('1,234', 'USD'), 123400));
+    test('"0.123" no es agrupación (la parte entera es 0)', () => igual(parsear('0.123', 'COP'), 12));
+    test('varios separadores iguales son siempre de miles', () => igual(parsear('1.234.567', 'COP'), 123456700));
+    test('negativos', () => igual(parsear('-50.000', 'COP'), -5000000));
+    test('texto sin dígitos devuelve null', () => igual(parsear('abc', 'COP'), null));
+
+    test('multiplicar redondea half-to-even (mitad exacta -> par más cercano)', () => {
+      igual(multiplicar(100, 0.125), 12, '100 * 0.125 = 12.5 -> 12 (ya es par)');
+      igual(multiplicar(300, 0.125), 38, '300 * 0.125 = 37.5 -> 38 (37 es impar)');
+    });
+    test('multiplicar con negativos conserva el signo', () => igual(multiplicar(-8500000, 2), -17000000));
+    test('sumar ignora null/undefined', () => igual(sumar(100, null, 200, undefined), 300));
+    test('formatear COP sin símbolo', () => igual(formatear(8500000, 'COP', { conSimbolo: false }).replace(/\s/g, ' '), '85.000,00'));
+
+    /* ---------- tax.js ---------- */
+    test('calcularTotales: orden subtotal -> descuento -> IVA -> retenciones', () => {
+      const totales = calcularTotales({
+        items: [{ precioUnitario: 8500000, cantidad: 7 }],
+        descuentoPct: 0,
+        impuestos: { ivaPct: 19, reteFuentePct: 11, reteIcaPorMil: 6.9 },
+        moneda: 'COP',
+        fx: null,
+      });
+      igual(totales.subtotal, 59500000);
+      igual(totales.iva, 11305000);
+      igual(totales.reteFuente, 6545000);
+      igual(totales.reteIca, 410550);
+      igual(totales.total, 63849450);
+    });
+    test('impuestosPorDefecto: exportación de servicios queda en cero', () => {
+      const impuestos = impuestosPorDefecto(
+        { impuestos: { ivaPct: 19, reteFuentePct: 11, reteIcaPorMil: 6.9, aplicarIvaPorDefecto: true } },
+        { pais: 'SE' },
+      );
+      igual(impuestos.ivaPct, IMPUESTOS_EN_CERO.ivaPct);
+      igual(impuestos.reteFuentePct, IMPUESTOS_EN_CERO.reteFuentePct);
+    });
+
+    /* ---------- time.js ---------- */
+    test('segundosTranscurridos descuenta las pausas', () => {
+      const inicio = 0;
+      const ahora = 10 * 60 * 1000; // 10 min
+      const pausas = [{ inicio: 2 * 60 * 1000, fin: 4 * 60 * 1000 }]; // 2 min pausados
+      igual(segundosTranscurridos(inicio, pausas, ahora), 8 * 60);
+    });
+    test('formatearDuracion', () => igual(formatearDuracion(3661), '1:01:01'));
+    test('horasFacturables redondea al bloque de 15 min', () => igual(horasFacturables(61 * 60), 1.25));
+    test('sumarDias respeta el calendario local', () => igual(sumarDias('2026-02-28', 1), '2026-03-01'));
+    test('diasEntre', () => igual(diasEntre('2026-02-01', '2026-02-10'), 9));
+
+    /* ---------- invoice.js ---------- */
+    test('siguienteNumero aplica el padding', () => igual(siguienteNumero({ prefijo: 'FV-', siguiente: 14, padding: 4 }), 'FV-0014'));
+    test('saldoPendiente resta los pagos', () => {
+      const factura = { totales: { total: 1000 }, pagos: [{ monto: 300 }, { monto: 200 }] };
+      igual(saldoPendiente(factura), 500);
+    });
+    test('estadoEfectivo: vencida se deriva, no se guarda', () => {
+      const factura = { estado: 'enviada', venceEn: '2026-01-01', totales: { total: 1000 }, pagos: [] };
+      igual(estadoEfectivo(factura, '2026-02-01'), 'vencida');
+    });
+    test('estadoEfectivo: pagada si el saldo llega a cero', () => {
+      const factura = { estado: 'enviada', venceEn: '2026-12-31', totales: { total: 1000 }, pagos: [{ monto: 1000 }] };
+      igual(estadoEfectivo(factura, '2026-02-01'), 'pagada');
+    });
+    test('diasParaVencer', () => {
+      const factura = { venceEn: '2026-02-10' };
+      igual(diasParaVencer(factura, '2026-02-01'), 9);
+    });
+
+    /* ---------- fx.js ---------- */
+    test('convertir respeta los decimales de cada moneda', () => {
+      // 100.00 USD a 4218,55 COP/USD -> 421.855,00 COP
+      igual(convertir(10000, 4218.55, 'USD', 'COP'), 42185500);
+    });
+
+    /* ---------- core/db.js: migraciones ----------
+       Un respaldo viejo (v1) no puede tronar la app solo porque le falta un
+       campo que se agregó después. */
+    test('migrar v1 -> v3 agrega pagos:[] a facturas sin ese campo', () => {
+      const v1 = {
+        schemaVersion: 1,
+        ajustes: { impuestos: {} },
+        clientes: [], proyectos: [], registros: [], fxCache: {},
+        facturas: [{ id: 'f1', estado: 'enviada' }],
+      };
+      const migrado = migrar(v1);
+      igual(migrado.schemaVersion, 3);
+      igual(Array.isArray(migrado.facturas[0].pagos), true);
+      igual(migrado.facturas[0].pagos.length, 0);
+    });
+
+    test('migrar v1 -> v3 agrega ajustes.pago con sus valores por defecto', () => {
+      const v1 = {
+        schemaVersion: 1,
+        ajustes: { impuestos: {} },
+        clientes: [], proyectos: [], registros: [], facturas: [], fxCache: {},
+      };
+      const migrado = migrar(v1);
+      igual(migrado.ajustes.pago.diasVencimiento, 15);
+    });
+
+    test('migrar no toca un estado que ya está en la versión actual', () => {
+      const v3 = {
+        schemaVersion: 3,
+        ajustes: { impuestos: {}, pago: { metodos: [], diasVencimiento: 30 } },
+        clientes: [], proyectos: [], registros: [], facturas: [], fxCache: {},
+      };
+      const migrado = migrar(v3);
+      igual(migrado.ajustes.pago.diasVencimiento, 30);
+    });
+
+    /* ---------- ejecutar ---------- */
+    const resultados = pruebas.map(({ nombre, fn }) => {
+      try { fn(); return { ok: true, nombre }; }
+      catch (e) { return { ok: false, nombre, error: e.message }; }
+    });
+
+    const lineas = resultados.map((r) => (r.ok ? `✅ ${r.nombre}` : `❌ ${r.nombre} — ${r.error}`));
+    const fallidas = resultados.filter((r) => !r.ok).length;
+    lineas.push('');
+    lineas.push(`${resultados.length - fallidas}/${resultados.length} pruebas pasaron.`);
+
+    document.getElementById('salida').textContent = lineas.join('\n');
+  </script>
+</body>
+</html>
