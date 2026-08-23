@@ -18,6 +18,10 @@
   /** Severidades ordenadas de mayor a menor prioridad. */
   const SEVERITY_RANK = { critical: 0, warning: 1, info: 2, good: 3 };
 
+  /* Drenaje que se considera "rápido", a velocidad 1x. El normal simulado llega
+     a 42 pt/min y la ola de calor arranca en 46.8: el corte los separa. */
+  const FAST_DRYING_POINTS_PER_MIN = 45;
+
   /**
    * Pendiente de humedad por minuto usando regresión lineal simple
    * sobre las últimas `n` muestras. Devuelve null si no hay datos.
@@ -129,7 +133,9 @@
     {
       id: 'drying-fast',
       penalty: 8,
-      test: (s) => !s.sensorFault && s.trend !== null && s.trend < -1.2 && !s.pumpOn,
+      test: (s) => !s.sensorFault && s.trend !== null && !s.pumpOn
+        && s.soil > s.threshold
+        && s.trend < -FAST_DRYING_POINTS_PER_MIN * (s.speed || 1),
       build: (s) => ({
         severity: 'warning',
         title: 'El suelo se seca rápido',
@@ -207,7 +213,16 @@
         hit = false; // una regla defectuosa nunca debe tumbar el tablero
       }
       if (!hit) continue;
-      findings.push({ id: rule.id, ...rule.build(s) });
+
+      /* build() es quien formatea (toFixed sobre el snapshot): si revienta aquí,
+         la excepción sube hasta simulateTick y se pierde el saveState de ese tick. */
+      let finding;
+      try {
+        finding = { id: rule.id, ...rule.build(s) };
+      } catch {
+        continue;
+      }
+      findings.push(finding);
       score -= rule.penalty;
     }
 

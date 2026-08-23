@@ -15,6 +15,8 @@ const HISTORY_LIMIT = 240;
 const LOG_LIMIT = 120;
 const HYSTERESIS = 5;
 
+const STATUS_LABEL = { good: 'OK', warning: 'Atención', critical: 'Crítico', info: 'Info' };
+
 /* ==========================================================
    1. Utilidades
    ========================================================== */
@@ -24,7 +26,11 @@ const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
 const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-const todayKey = () => new Date().toISOString().slice(0, 10);
+/* Fecha local, no UTC: con toISOString el día cambiaría a las 19:00 en UTC-5. */
+const todayKey = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
 const timeLabel = (d) => d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
 const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) =>
@@ -51,8 +57,15 @@ function download(filename, content, mime) {
 }
 
 /** Convierte filas a CSV con comillas escapadas. */
+/* Excel evalúa como fórmula cualquier celda que empiece por = + - @ aunque venga entrecomillada. */
+const FORMULA_PREFIX = /^[=+\-@\t\r]/;
+
 const toCsv = (rows) =>
-  rows.map((r) => r.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  rows.map((r) => r.map((v) => {
+    const cell = String(v ?? '');
+    const safe = FORMULA_PREFIX.test(cell) ? `'${cell}` : cell;
+    return `"${safe.replace(/"/g, '""')}"`;
+  }).join(',')).join('\r\n');
 
 /* ==========================================================
    2. Notificaciones apilables
@@ -94,17 +107,62 @@ function loadState() {
   }
 }
 
+/* Lo que vuelve de localStorage puede venir de una versión anterior, estar
+   truncado o haber sido manipulado: nada se adopta sin validar su forma. */
+const finiteNumber = (value, fallback, min, max) =>
+  typeof value === 'number' && Number.isFinite(value) ? clamp(value, min, max) : fallback;
+
+const isValidDate = (value) =>
+  typeof value === 'string' && !Number.isNaN(new Date(value).getTime());
+
+function sanitizeStats(rawStats) {
+  const fresh = { dateKey: todayKey(), irrigations: 0, pumpMinutes: 0, waterSaved: 0 };
+  if (!rawStats || typeof rawStats !== 'object' || rawStats.dateKey !== todayKey()) return fresh;
+  return {
+    dateKey: todayKey(),
+    irrigations: finiteNumber(rawStats.irrigations, 0, 0, Number.MAX_SAFE_INTEGER),
+    pumpMinutes: finiteNumber(rawStats.pumpMinutes, 0, 0, Number.MAX_SAFE_INTEGER),
+    waterSaved: finiteNumber(rawStats.waterSaved, 0, 0, Number.MAX_SAFE_INTEGER),
+  };
+}
+
+/** Un punto con cualquier campo no numérico se descarta entero: es telemetría, no hay valor por defecto sensato. */
+function sanitizeReading(rawPoint) {
+  if (!rawPoint || typeof rawPoint !== 'object' || !isValidDate(rawPoint.t)) return null;
+  const readings = ['soil', 'temp', 'humidity', 'tank'];
+  if (readings.some((field) => typeof rawPoint[field] !== 'number' || !Number.isFinite(rawPoint[field]))) return null;
+  return {
+    t: rawPoint.t,
+    soil: clamp(rawPoint.soil, 0, 100),
+    temp: clamp(rawPoint.temp, 5, 40),
+    humidity: clamp(rawPoint.humidity, 10, 95),
+    tank: clamp(rawPoint.tank, 0, 100),
+  };
+}
+
+function sanitizeLogEntry(rawEntry) {
+  if (!rawEntry || typeof rawEntry !== 'object') return null;
+  if (typeof rawEntry.event !== 'string' || !isValidDate(rawEntry.time)) return null;
+  return {
+    time: rawEntry.time,
+    event: rawEntry.event,
+    status: STATUS_LABEL[rawEntry.status] ? rawEntry.status : 'info',
+  };
+}
+
+const sanitizeList = (rawList, sanitizeItem) =>
+  (Array.isArray(rawList) ? rawList : []).map(sanitizeItem).filter(Boolean);
+
 const saved = loadState();
-const isFreshDay = !saved || saved.stats?.dateKey !== todayKey();
 
 const state = {
   /* preferencias persistidas */
-  theme: saved?.theme ?? null,
-  mode: saved?.mode ?? 'auto',
-  threshold: saved?.threshold ?? 35,
-  pumpManual: saved?.pumpManual ?? false,
-  chartRange: saved?.chartRange ?? 60,
-  assistantOpen: saved?.assistantOpen ?? true,
+  theme: saved?.theme === 'light' || saved?.theme === 'dark' ? saved.theme : null,
+  mode: saved?.mode === 'manual' ? 'manual' : 'auto',
+  threshold: finiteNumber(saved?.threshold, 35, 10, 70),
+  pumpManual: saved?.pumpManual === true,
+  chartRange: saved?.chartRange === 'all' ? 'all' : finiteNumber(saved?.chartRange, 60, 1, HISTORY_LIMIT),
+  assistantOpen: saved?.assistantOpen !== false,
 
   /* telemetría */
   soil: 42,
@@ -124,12 +182,10 @@ const state = {
   speed: 1,
   scenario: 'normal',
 
-  /* datos */
-  history: saved?.history ?? [],
-  log: saved?.log ?? [],
-  stats: isFreshDay
-    ? { dateKey: todayKey(), irrigations: 0, pumpMinutes: 0, waterSaved: 0 }
-    : saved.stats,
+  /* datos (los límites también se aplican al restaurar, no solo al escribir) */
+  history: sanitizeList(saved?.history, sanitizeReading).slice(-HISTORY_LIMIT),
+  log: sanitizeList(saved?.log, sanitizeLogEntry).slice(0, LOG_LIMIT),
+  stats: sanitizeStats(saved?.stats),
 
   /* vista */
   showTable: false,
@@ -200,7 +256,14 @@ const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabi
 let lastFocused = null;
 
 function openDialog(overlay, focusTarget) {
-  lastFocused = document.activeElement;
+  /* reabrir un diálogo ya abierto dejaría una trampa de foco huérfana en `document` */
+  if (!overlay.hidden) {
+    (focusTarget || overlay.querySelector(FOCUSABLE))?.focus();
+    return;
+  }
+  if (!$$('.modal-overlay:not([hidden]), .palette-overlay:not([hidden])').length) {
+    lastFocused = document.activeElement;
+  }
   overlay.hidden = false;
   document.body.classList.add('modal-open');
   (focusTarget || overlay.querySelector(FOCUSABLE))?.focus();
@@ -209,18 +272,24 @@ function openDialog(overlay, focusTarget) {
 }
 
 function closeDialog(overlay) {
+  if (overlay.hidden) return;
   overlay.hidden = true;
+  if (overlay._trap) {
+    document.removeEventListener('keydown', overlay._trap, true);
+    overlay._trap = null;
+  }
   if (!$$('.modal-overlay:not([hidden]), .palette-overlay:not([hidden])').length) {
     document.body.classList.remove('modal-open');
+    lastFocused?.focus();
+    lastFocused = null;
   }
-  document.removeEventListener('keydown', overlay._trap, true);
-  lastFocused?.focus();
 }
 
 function trapFocus(e, overlay) {
   if (e.key === 'Escape') {
     e.preventDefault();
-    e.stopPropagation();
+    /* con dos diálogos abiertos, stopPropagation no basta: ambas trampas viven en `document` */
+    e.stopImmediatePropagation();
     closeDialog(overlay);
     return;
   }
@@ -269,6 +338,9 @@ function setMode(mode, announce = true) {
   $('pumpToggle').disabled = isAuto;
   $('pumpHint').textContent = isAuto ? 'Controlada automáticamente' : 'Control manual activo';
   if (!isAuto) state.pumpOn = state.pumpManual;
+  /* el ciclo de histéresis se recalcula al entrar al modo: si no, al volver a auto
+     la bomba arranca sola dentro de la banda y ese riego no se cuenta ni se registra */
+  state.autoIrrigating = false;
   renderPump();
   saveState();
   if (announce) Toast.show(`Modo ${isAuto ? 'automático' : 'manual'} activado`, 'info', 2000);
@@ -291,6 +363,10 @@ function setThreshold(value, announce = false) {
   $('thresholdSlider').value = String(state.threshold);
   $('thresholdValue').textContent = `${state.threshold}%`;
   refreshChartData();
+  /* con la simulación en pausa nadie más repinta: tarjetas, alerta y asistente quedarían obsoletos */
+  renderSensors();
+  updateAlert();
+  runAssistant();
   saveState();
   if (announce) Toast.show(`Umbral fijado en ${state.threshold}%`, 'info', 2000);
 }
@@ -369,8 +445,6 @@ function setScenario(key, announce = true) {
    7. Bitácora
    ========================================================== */
 
-const STATUS_LABEL = { good: 'OK', warning: 'Atención', critical: 'Crítico', info: 'Info' };
-
 function logEvent(text, status) {
   state.log.unshift({ time: new Date().toISOString(), event: text, status });
   if (state.log.length > LOG_LIMIT) state.log.length = LOG_LIMIT;
@@ -400,7 +474,7 @@ function renderLog() {
     <tr>
       <td class="col-time">${timeLabel(new Date(e.time))}</td>
       <td>${escapeHtml(e.event)}</td>
-      <td><span class="row-badge row-badge--${e.status}">${STATUS_LABEL[e.status] || e.status}</span></td>
+      <td><span class="row-badge row-badge--${escapeHtml(e.status)}">${escapeHtml(STATUS_LABEL[e.status] || e.status)}</span></td>
     </tr>`).join('');
 }
 
@@ -482,7 +556,7 @@ const EXPORTERS = {
 };
 
 function buildReport(diag) {
-  const row = (a, b) => `<tr><th>${a}</th><td>${b}</td></tr>`;
+  const row = (a, b) => `<tr><th>${escapeHtml(a)}</th><td>${escapeHtml(b)}</td></tr>`;
   return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
 <title>Informe — Sistema de Riego Inteligente</title>
 <style>
@@ -568,6 +642,8 @@ function snapshot() {
     soil: state.soil, temp: state.temp, humidity: state.humidity, tank: state.tank,
     threshold: state.threshold, mode: state.mode, pumpOn: state.pumpOn,
     sensorFault: state.sensorFault, stats: state.stats, history: state.history,
+    /* la tendencia se mide en minutos reales: sin la velocidad no es comparable con un umbral fijo */
+    speed: state.speed,
   };
 }
 
@@ -579,6 +655,13 @@ const ASSISTANT_ACTIONS = {
 };
 
 let lastCriticalIds = new Set();
+let lastFindingsKey = '';
+
+/* delegación registrada una sola vez: los botones se recrean en cada repintado */
+$('assistantBody').addEventListener('click', (e) => {
+  const button = e.target.closest('[data-action]');
+  if (button) ASSISTANT_ACTIONS[button.dataset.action]?.();
+});
 
 function runAssistant() {
   const diag = RiegoAssistant.evaluate(snapshot());
@@ -591,19 +674,24 @@ function runAssistant() {
   $('healthChip').dataset.tone = tone;
   $('healthRing').style.setProperty('--pct', `${diag.score}%`);
 
-  /* tarjetas de hallazgos */
-  $('assistantBody').innerHTML = diag.findings.map((f) => `
-    <article class="finding finding--${f.severity}">
+  /* Tarjetas de hallazgos. Repintar en cada tick robaba el foco del teclado y hacía
+     que el lector de pantalla releyera el panel entero cada 2 s: solo se repinta si
+     el diagnóstico cambió y el usuario no está dentro del panel. */
+  const findingsKey = diag.findings.map((f) => `${f.id}:${f.detail}`).join('|');
+  const focusInsidePanel = $('assistantBody').contains(document.activeElement);
+
+  if (findingsKey !== lastFindingsKey && !focusInsidePanel) {
+    lastFindingsKey = findingsKey;
+    $('assistantBody').innerHTML = diag.findings.map((f) => `
+    <article class="finding finding--${escapeHtml(f.severity)}">
       <span class="finding-icon" aria-hidden="true">${Toast.icons[f.severity]}</span>
       <div class="finding-text">
         <strong>${escapeHtml(f.title)}</strong>
         <p>${escapeHtml(f.detail)}</p>
       </div>
-      ${f.action ? `<button class="finding-action" type="button" data-action="${f.action.command}">${escapeHtml(f.action.label)}</button>` : ''}
+      ${f.action ? `<button class="finding-action" type="button" data-action="${escapeHtml(f.action.command)}">${escapeHtml(f.action.label)}</button>` : ''}
     </article>`).join('');
-
-  $$('[data-action]', $('assistantBody')).forEach((b) =>
-    b.addEventListener('click', () => ASSISTANT_ACTIONS[b.dataset.action]?.()));
+  }
 
   /* avisa una sola vez por cada hallazgo crítico nuevo */
   const criticals = diag.findings.filter((f) => f.severity === 'critical');
@@ -883,7 +971,12 @@ function simulateTick() {
     state.stats.waterSaved += 1.5 + Math.random();
     logEvent('Riego automático activado (humedad bajo el umbral)', 'warning');
   } else if (state.mode === 'auto' && !state.autoIrrigating && wasIrrigating) {
-    logEvent('Riego automático detenido (humedad recuperada)', 'good');
+    /* la misma transición la provocan tres causas distintas; la bitácora es evidencia exportable */
+    const interrupted = state.sensorFault || state.tank <= 0;
+    const reason = state.sensorFault ? 'sensor sin señal'
+      : state.tank <= 0 ? 'tanque vacío'
+      : 'humedad recuperada';
+    logEvent(`Riego automático detenido (${reason})`, interrupted ? 'critical' : 'good');
   }
 
   /* --- evolución física --- */
@@ -1097,6 +1190,12 @@ document.addEventListener('keydown', (e) => {
   if (!palette.overlay.hidden || $$('.modal-overlay:not([hidden])').length) return;
 
   const k = e.key.toLowerCase();
+
+  /* Espacio y las flechas son las teclas con las que se activan y recorren los
+     controles: sobre uno enfocado manda el control, no el atajo global. */
+  const ON_CONTROL_KEYS = [' ', 'arrowup', 'arrowdown'];
+  if (ON_CONTROL_KEYS.includes(k) && e.target.closest('button, [role="radio"], a[href], input, select, textarea')) return;
+
   const map = {
     ' ': () => setRunning(!state.running),
     t: toggleTheme,
@@ -1157,8 +1256,14 @@ $$('[data-range]').forEach((b) => {
 
 $('assistantBody').hidden = !state.assistantOpen;
 $('assistantToggle').textContent = state.assistantOpen ? 'Ocultar' : 'Mostrar';
+$('assistantToggle').setAttribute('aria-expanded', String(state.assistantOpen));
 
-buildChart();
+/* sin red (aula sin internet) Chart.js no llega y el arranque se quedaría a medias */
+if (typeof Chart === 'function') {
+  buildChart();
+} else {
+  Toast.show('No se pudo cargar la librería del gráfico; usa "Ver tabla"', 'warning', 6000);
+}
 refreshChartData();
 renderSensors();
 renderPump();
