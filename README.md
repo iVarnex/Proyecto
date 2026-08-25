@@ -8,16 +8,18 @@
 
 Dos aplicaciones web independientes construidas con HTML, CSS y JavaScript puro — sin frameworks, sin bundlers y (salvo una excepción puntual) sin dependencias externas. Cada proyecto vive en su propia carpeta, con su propio historial de decisiones y su propia forma de ejecutarse.
 
-| Proyecto | Descripción |
-|---|---|
-| [**Sistema de Riego Inteligente**](#sistema-de-riego-inteligente) | Tablero de control para riego automatizado, con un motor de reglas determinista para diagnóstico |
-| [**Panel de Facturación**](#panel-de-facturación) | Facturación freelance multi-moneda, con impuestos colombianos configurables |
+| Proyecto | Descripción | Demo |
+|---|---|---|
+| [**Sistema de Riego Inteligente**](#sistema-de-riego-inteligente) | Tablero de control para riego automatizado, con un motor de reglas determinista para diagnóstico | [Ver](https://riego-inteligente-mu.vercel.app) |
+| [**Panel de Facturación**](#panel-de-facturación) | Facturación freelance multi-moneda, con impuestos colombianos configurables | [Ver](https://panel-facturacion-lyart.vercel.app) |
 
 ---
 
 ## Sistema de Riego Inteligente
 
 Tablero de control web para un sistema de riego automatizado: sensores de humedad y temperatura, actuador de bomba y conectividad WiFi. La telemetría se simula en el navegador; el diagnóstico corre sobre un **motor de reglas determinista**, no un modelo de lenguaje ni machine learning — cada recomendación es trazable a una regla explícita y su justificación.
+
+**Demo en vivo:** [riego-inteligente-mu.vercel.app](https://riego-inteligente-mu.vercel.app)
 
 **Funcionalidad**
 
@@ -41,6 +43,8 @@ python -m http.server 8000
 ## Panel de Facturación
 
 Panel de facturación para freelancers con soporte multi-moneda: clientes, proyectos, registro de horas (entrada manual y cronómetro), facturas con impuestos configurables (IVA, retención en la fuente, ReteICA) y cobros. El dinero se maneja siempre como enteros en la unidad mínima de cada moneda — nunca en punto flotante — y una factura emitida congela sus totales, impuestos y tasa de cambio como un documento histórico.
+
+**Demo en vivo:** [panel-facturacion-lyart.vercel.app](https://panel-facturacion-lyart.vercel.app)
 
 **Funcionalidad**
 
