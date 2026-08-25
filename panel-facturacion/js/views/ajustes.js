@@ -76,6 +76,14 @@ export function vistaAjustes(estado) {
         </label>
         <button class="btn btn--peligro" data-accion="borrar-todo" type="button">Borrar todos los datos</button>
       </div>
+    </section>
+
+    <section class="tarjeta">
+      <h2 class="tarjeta__titulo">Modo de prueba</h2>
+      <p class="tarjeta__ayuda">Carga clientes, proyectos, horas y facturas inventados para ver el panel en funcionamiento. <strong>Reemplaza los datos actuales de este navegador</strong> — úsalo para explorar la app, no en una cuenta con datos reales.</p>
+      <div class="vista__acciones">
+        <button class="btn" data-accion="cargar-datos-demo" type="button">Cargar datos de demostración</button>
+      </div>
     </section>`;
 }
 
@@ -157,5 +165,16 @@ export const accionesAjustes = {
     if (!ok) return;
     store.borrarTodo();
     exito('Datos borrados.');
+  },
+
+  'cargar-datos-demo': async () => {
+    const ok = await confirmar('Esto reemplaza todos los datos actuales de este navegador por datos de demostración inventados. ¿Continuar?', { textoConfirmar: 'Cargar demostración' });
+    if (!ok) return;
+    try {
+      await store.cargarDatosDemo();
+      exito('Datos de demostración cargados.');
+    } catch (err) {
+      toastError(err.message);
+    }
   },
 };

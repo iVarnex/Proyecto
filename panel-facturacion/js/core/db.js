@@ -141,7 +141,15 @@ export function exportar(estado) {
   URL.revokeObjectURL(url);
 }
 
-/** Lee un respaldo y lo migra a la versión actual antes de adoptarlo. */
+/** Valida que `datos` tenga forma de respaldo de este panel y lo migra a la versión actual. */
+export function importarDatos(datos) {
+  if (!datos || !Array.isArray(datos.clientes) || !Array.isArray(datos.facturas)) {
+    throw new Error('El archivo no tiene la forma de un respaldo de este panel.');
+  }
+  return migrar(datos);
+}
+
+/** Lee un respaldo desde un `File` (input de tipo archivo) y lo migra a la versión actual. */
 export async function importar(archivo) {
   const texto = await archivo.text();
   let datos;
@@ -150,10 +158,7 @@ export async function importar(archivo) {
   } catch {
     throw new Error('El archivo no es un respaldo válido (no es JSON).');
   }
-  if (!datos || !Array.isArray(datos.clientes) || !Array.isArray(datos.facturas)) {
-    throw new Error('El archivo no tiene la forma de un respaldo de este panel.');
-  }
-  return migrar(datos);
+  return importarDatos(datos);
 }
 
 export function borrarTodo() {

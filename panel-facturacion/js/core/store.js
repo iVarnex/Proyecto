@@ -7,7 +7,7 @@
  * impuestos, numeración) viven en `domain/`; este módulo solo orquesta.
  */
 
-import { cargar, guardar, guardarYa, exportar, importar as importarRespaldo, borrarTodo as borrarRespaldo } from './db.js';
+import { cargar, guardar, guardarYa, exportar, importar as importarRespaldo, importarDatos, borrarTodo as borrarRespaldo } from './db.js';
 import { nuevoId } from '../domain/id.js';
 import { hoyLocal, segundosTranscurridos } from '../domain/time.js';
 import {
@@ -290,6 +290,14 @@ export function exportarRespaldo() {
 export async function importarRespaldoDesdeArchivo(archivo) {
   const estadoImportado = await importarRespaldo(archivo);
   aplicar(estadoImportado);
+}
+
+/** Reemplaza el estado actual por los datos de demostración (`data/seed.json`), para probar la app sin datos reales. */
+export async function cargarDatosDemo() {
+  const respuesta = await fetch('data/seed.json');
+  if (!respuesta.ok) throw new Error('No se pudieron cargar los datos de demostración.');
+  const datos = await respuesta.json();
+  aplicar(importarDatos(datos));
 }
 
 export function borrarTodo() {

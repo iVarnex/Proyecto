@@ -54,7 +54,7 @@ y abrir `http://localhost:8000/`. Cualquier servidor estático sirve (Live Serve
 
 ## Cargar datos de ejemplo
 
-`data/seed.json` es un respaldo válido (mismo esquema que exporta la app). Para cargarlo: Ajustes → Importar respaldo → seleccionar `data/seed.json`. Trae 2 clientes, 2 proyectos, una factura emitida con un pago parcial y un borrador en USD con tasa de cambio manual.
+`data/seed.json` es un respaldo válido (mismo esquema que exporta la app). La forma más rápida es Ajustes → **Modo de prueba** → Cargar datos de demostración: pide `data/seed.json` por `fetch()` y lo carga directo, sin pasar por el selector de archivos del sistema operativo (pensado para quien visita la demo desplegada y no tiene el repositorio clonado en su disco). El botón de siempre —Ajustes → Importar respaldo → seleccionar `data/seed.json`— sigue funcionando igual. Trae 5 clientes, 6 proyectos, facturas emitidas con pagos parciales y un borrador en USD con tasa de cambio manual.
 
 ## Verificar
 
@@ -62,7 +62,7 @@ No hay suite automatizada de CI. Para comprobar un cambio:
 
 1. `python -m http.server 8000` y abrir la consola del navegador: cero errores al cargar cualquier vista.
 2. Abrir `test.html` con el mismo servidor: todas las pruebas de `domain/` en verde.
-3. Importar `data/seed.json` y recorrer el flujo: crear cliente → proyecto → registrar horas (manual y con cronómetro) → facturar horas sin facturar → emitir → registrar un pago → imprimir (Ctrl+P, verificar que solo se ve la factura).
+3. Ajustes → Modo de prueba → Cargar datos de demostración (o importar `data/seed.json` a mano) y recorrer el flujo: crear cliente → proyecto → registrar horas (manual y con cronómetro) → facturar horas sin facturar → emitir → registrar un pago → imprimir (Ctrl+P, verificar que solo se ve la factura).
 4. Recargar la página (F5): el estado sobrevive porque vive en `localStorage`.
 5. Exportar un respaldo desde Ajustes y volver a importarlo: los datos deben quedar idénticos. Exportar CSV desde Facturas y abrirlo en Excel/Sheets: tildes correctas, sin fórmulas activadas por error.
 6. Navegar el flujo completo solo con teclado (Tab/Shift+Tab/Escape/el botón "Saltar al contenido"), incluidos los modales.
