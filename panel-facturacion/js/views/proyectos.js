@@ -41,6 +41,7 @@ export function vistaProyectos(estado) {
     <div class="barra-busqueda">
       <input type="search" id="buscar-proyectos" placeholder="Buscar por proyecto o cliente..." aria-label="Buscar proyectos">
     </div>
+    <div class="table-wrap">
     <table class="tabla" id="tabla-proyectos">
       <thead>
         <tr><th>Proyecto</th><th>Cliente</th><th class="num">Tarifa/hora</th><th>Estado</th><th></th></tr>
@@ -59,7 +60,8 @@ export function vistaProyectos(estado) {
           </tr>`)}
         <tr data-sin-resultados hidden><td colspan="5">Ningún proyecto coincide con la búsqueda.</td></tr>
       </tbody>
-    </table>`;
+    </table>
+    </div>`;
 }
 
 export function alActualizar() {

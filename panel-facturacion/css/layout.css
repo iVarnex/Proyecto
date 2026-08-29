@@ -16,29 +16,66 @@
 }
 
 .app {
-  display: grid;
-  grid-template-columns: 240px 1fr;
   min-height: 100vh;
 }
 
 .barra-lateral {
-  background: var(--superficie);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--ancho-barra-lateral);
+  background: var(--superficie-veladura);
+  backdrop-filter: blur(var(--desenfoque));
   border-right: var(--borde);
-  padding: var(--e-4);
+  padding: var(--e-4) 0;
   display: flex;
   flex-direction: column;
   gap: var(--e-1);
+  overflow: hidden;
+  white-space: nowrap;
+  transition: width var(--duracion-transicion) ease-out;
+  z-index: 10;
+}
+
+.barra-lateral:hover,
+.barra-lateral:focus-within {
+  width: var(--ancho-barra-lateral-expandida);
 }
 
 .barra-lateral__marca {
-  font-weight: 700;
-  padding: var(--e-2);
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-2) var(--e-4);
   margin-bottom: var(--e-4);
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barra-lateral__icono {
+  flex-shrink: 0;
+}
+
+.barra-lateral__marca span:not(.barra-lateral__icono),
+.barra-lateral a span:not(.barra-lateral__icono) {
+  opacity: 0;
+  transition: opacity var(--duracion-transicion) ease-out;
+}
+
+.barra-lateral:hover .barra-lateral__marca span:not(.barra-lateral__icono),
+.barra-lateral:hover a span:not(.barra-lateral__icono),
+.barra-lateral:focus-within .barra-lateral__marca span:not(.barra-lateral__icono),
+.barra-lateral:focus-within a span:not(.barra-lateral__icono) {
+  opacity: 1;
 }
 
 .barra-lateral a {
-  display: block;
-  padding: var(--e-2) var(--e-3);
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-2) var(--e-4);
   border-radius: var(--radio);
   color: var(--texto);
 }
@@ -47,9 +84,15 @@
 .barra-lateral a.activo { background: var(--acento-suave); color: var(--acento); font-weight: 600; }
 
 main#app {
+  margin-left: var(--ancho-barra-lateral);
   padding: var(--e-8);
-  max-width: 1100px;
-  width: 100%;
+  max-width: 1400px;
+  transition: margin-left var(--duracion-transicion) ease-out;
+}
+
+.barra-lateral:hover ~ main#app,
+.barra-lateral:focus-within ~ main#app {
+  margin-left: var(--ancho-barra-lateral-expandida);
 }
 
 .vista__cabecera {
@@ -84,13 +127,29 @@ main#app {
 /* Sin drawer con JS: en pantallas angostas la barra pasa a ser una fila
    horizontal con scroll, siempre visible y alcanzable con Tab. */
 @media (max-width: 768px) {
-  .app { grid-template-columns: 1fr; }
+  .app { display: flex; flex-direction: column; }
   .barra-lateral {
+    position: static;
+    width: auto;
+    height: auto;
     flex-direction: row;
     overflow-x: auto;
     border-right: none;
     border-bottom: var(--borde);
+    padding: var(--e-2);
+  }
+  .barra-lateral:hover,
+  .barra-lateral:focus-within {
+    width: auto;
   }
   .barra-lateral__marca { display: none; }
-  main#app { padding: var(--e-4); }
+  .barra-lateral a span:not(.barra-lateral__icono) { opacity: 1; }
+  main#app {
+    margin-left: 0;
+    padding: var(--e-4);
+  }
+  .barra-lateral:hover ~ main#app,
+  .barra-lateral:focus-within ~ main#app {
+    margin-left: 0;
+  }
 }

@@ -26,6 +26,7 @@ export function vistaClientes(estado) {
     <div class="barra-busqueda">
       <input type="search" id="buscar-clientes" placeholder="Buscar por nombre o correo..." aria-label="Buscar clientes">
     </div>
+    <div class="table-wrap">
     <table class="tabla" id="tabla-clientes">
       <thead>
         <tr><th>Cliente</th><th>Moneda</th><th class="num">Tarifa/hora</th><th>Proyectos</th><th></th></tr>
@@ -47,7 +48,8 @@ export function vistaClientes(estado) {
           </tr>`)}
         <tr data-sin-resultados hidden><td colspan="5">Ningún cliente coincide con la búsqueda.</td></tr>
       </tbody>
-    </table>`;
+    </table>
+    </div>`;
 }
 
 function formularioCliente(cliente) {

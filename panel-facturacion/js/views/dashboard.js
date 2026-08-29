@@ -142,10 +142,45 @@ export function vistaDashboard(estado) {
       </section>
     </div>
 
-    <div class="tablero-dos-columnas">
-      <section class="tarjeta">
-        <h2 class="tarjeta__titulo">Por vencer</h2>
-        ${porVencer.length === 0
+    <div class="tablero-panel">
+      <div class="tablero-panel__principal">
+        <section class="tarjeta">
+          <h2 class="tarjeta__titulo">Ingresos — últimos ${MESES_INGRESOS} meses</h2>
+          <div class="grafico-barras">
+            ${ingresos.map(({ mes, monto }) => html`
+              <div class="grafico-barras__columna">
+                <span class="grafico-barras__valor num">${monto > 0 ? formatear(monto, estado.ajustes.monedaBase, { conSimbolo: false }) : ''}</span>
+                <div class="grafico-barras__pista">
+                  <div class="grafico-barras__barra" style="height:0%" data-alto="${(100 * monto) / maxIngreso}"></div>
+                </div>
+                <span class="grafico-barras__etiqueta">${etiquetaMes(mes)}</span>
+              </div>`)}
+          </div>
+        </section>
+
+        <section class="tarjeta">
+          <h2 class="tarjeta__titulo">Horas sin facturar</h2>
+          ${sinFacturar.length === 0
+      ? html`<p class="tarjeta__vacio">Todo lo facturable ya está en una factura.</p>`
+      : html`<ul class="barras-horizontales">
+            ${sinFacturar.map(({ proyecto, segundos }) => html`
+              <li class="barra-horizontal">
+                <div class="barra-horizontal__cabecera">
+                  <a href="#/proyectos">${proyecto.nombre}</a>
+                  <span class="num">${horasDecimales(segundos).toFixed(2)} h</span>
+                </div>
+                <div class="barra-horizontal__pista">
+                  <div class="barra-horizontal__relleno" style="width:0%;background:${proyecto.color}" data-ancho="${(100 * segundos) / maxHorasSinFacturar}"></div>
+                </div>
+              </li>`)}
+          </ul>`}
+        </section>
+      </div>
+
+      <aside class="tablero-panel__lateral">
+        <section class="tarjeta">
+          <h2 class="tarjeta__titulo">Por vencer</h2>
+          ${porVencer.length === 0
       ? html`<p class="tarjeta__vacio">Ninguna factura vence en los próximos ${DIAS_ALERTA_VENCIMIENTO} días.</p>`
       : html`<ul class="lista-avisos">
             ${porVencer.map((f) => {
@@ -165,44 +200,11 @@ export function vistaDashboard(estado) {
               </li>`;
       })}
           </ul>`}
-      </section>
+        </section>
 
-      <section class="tarjeta">
-        <h2 class="tarjeta__titulo">Horas sin facturar</h2>
-        ${sinFacturar.length === 0
-      ? html`<p class="tarjeta__vacio">Todo lo facturable ya está en una factura.</p>`
-      : html`<ul class="barras-horizontales">
-            ${sinFacturar.map(({ proyecto, segundos }) => html`
-              <li class="barra-horizontal">
-                <div class="barra-horizontal__cabecera">
-                  <a href="#/proyectos">${proyecto.nombre}</a>
-                  <span class="num">${horasDecimales(segundos).toFixed(2)} h</span>
-                </div>
-                <div class="barra-horizontal__pista">
-                  <div class="barra-horizontal__relleno" style="width:0%;background:${proyecto.color}" data-ancho="${(100 * segundos) / maxHorasSinFacturar}"></div>
-                </div>
-              </li>`)}
-          </ul>`}
-      </section>
-    </div>
-
-    <section class="tarjeta">
-      <h2 class="tarjeta__titulo">Ingresos — últimos ${MESES_INGRESOS} meses</h2>
-      <div class="grafico-barras">
-        ${ingresos.map(({ mes, monto }) => html`
-          <div class="grafico-barras__columna">
-            <span class="grafico-barras__valor num">${monto > 0 ? formatear(monto, estado.ajustes.monedaBase, { conSimbolo: false }) : ''}</span>
-            <div class="grafico-barras__pista">
-              <div class="grafico-barras__barra" style="height:0%" data-alto="${(100 * monto) / maxIngreso}"></div>
-            </div>
-            <span class="grafico-barras__etiqueta">${etiquetaMes(mes)}</span>
-          </div>`)}
-      </div>
-    </section>
-
-    <section class="tarjeta">
-      <h2 class="tarjeta__titulo">Actividad reciente</h2>
-      ${actividad.length === 0
+        <section class="tarjeta">
+          <h2 class="tarjeta__titulo">Actividad reciente</h2>
+          ${actividad.length === 0
       ? html`<p class="tarjeta__vacio">Todavía no hay movimiento.</p>`
       : html`<ul class="actividad">
           ${actividad.map((e) => html`
@@ -212,7 +214,9 @@ export function vistaDashboard(estado) {
               <span class="actividad__fecha">${e.fecha}</span>
             </li>`)}
         </ul>`}
-    </section>`;
+        </section>
+      </aside>
+    </div>`;
 }
 
 function animarContadores() {

@@ -43,6 +43,7 @@ export function vistaFacturas(estado) {
     <div class="barra-busqueda">
       <input type="search" id="buscar-facturas" placeholder="Buscar por número, cliente o estado..." aria-label="Buscar facturas">
     </div>
+    <div class="table-wrap">
     <table class="tabla" id="tabla-facturas">
       <thead>
         <tr><th>Número</th><th>Cliente</th><th>Emitida</th><th>Vence</th><th class="num">Total</th><th>Estado</th></tr>
@@ -64,7 +65,8 @@ export function vistaFacturas(estado) {
     })}
         <tr data-sin-resultados hidden><td colspan="6">Ninguna factura coincide con la búsqueda.</td></tr>
       </tbody>
-    </table>`;
+    </table>
+    </div>`;
 }
 
 export function alActualizar() {

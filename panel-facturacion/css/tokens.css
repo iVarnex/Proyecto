@@ -9,45 +9,67 @@
   --e-4: 1rem;    --e-6: 1.5rem; --e-8: 2rem; --e-12: 3rem;
 
   --radio: 6px;
+  --radio-lg: 20px;
+  --desenfoque: 6px;
 
-  --fondo: #fbfbfa;
-  --superficie: #ffffff;
-  --linea: #e4e4e0;
-  --texto: #1c1c1a;
-  --texto-suave: #6b6b66;
-  --acento: #2d5f8a;
-  --acento-suave: #e8f0f7;
+  --ancho-barra-lateral: 72px;
+  --ancho-barra-lateral-expandida: 200px;
 
-  --exito: #2e7d52;
-  --exito-suave: #e6f2ea;
-  --aviso: #b8860b;
-  --aviso-suave: #fbf1dc;
-  --peligro: #b3401f;
-  --peligro-suave: #fbeae4;
-  --info: #3a5f8a;
-  --info-suave: #e8eef6;
+  /* Tema oscuro por defecto (look de referencia); el claro queda como
+     alternativa para quien lo prefiera a nivel de sistema operativo. */
+  --fondo: #0b0d10;
+  --superficie: #151b22;
+  --superficie-veladura: rgba(21, 27, 34, 0.6);
+  --boton-fondo: rgba(255, 255, 255, 0.04);
+  --boton-borde: rgba(255, 255, 255, 0.08);
+  --linea: rgba(255, 255, 255, 0.08);
+  --texto: #e8edf2;
+  --texto-suave: #8aa0b8;
+  --acento: #5fc3ff;
+  --acento-fuerte: #1a7bbf;
+  --acento-suave: rgba(95, 195, 255, 0.14);
+
+  --exito: #57c88d;
+  --exito-suave: rgba(87, 200, 141, 0.15);
+  --aviso: #d8b84a;
+  --aviso-suave: rgba(216, 184, 74, 0.15);
+  --peligro: #e07272;
+  --peligro-suave: rgba(224, 114, 114, 0.15);
+  --info: #7c9cff;
+  --info-suave: rgba(124, 156, 255, 0.15);
 
   --borde: 1px solid var(--linea);
-  --sombra: 0 2px 10px rgba(0, 0, 0, 0.06);
+  --sombra: 0 10px 30px rgba(0, 0, 0, 0.45);
   --fuente: system-ui, -apple-system, 'Segoe UI', sans-serif;
   --num: 'SF Mono', 'Cascadia Code', ui-monospace, monospace;
 
   --duracion-transicion: 150ms;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --fondo: #161614;
-    --superficie: #201f1d;
-    --linea: #34332f;
-    --texto: #ebe9e4;
-    --texto-suave: #9a978f;
-    --acento-suave: #1c2d3a;
-    --exito-suave: #16281e;
-    --aviso-suave: #302509;
-    --peligro-suave: #331810;
-    --info-suave: #172233;
-    --sombra: 0 2px 10px rgba(0, 0, 0, 0.35);
+    --fondo: #fbfbfa;
+    --superficie: #ffffff;
+    --superficie-veladura: rgba(255, 255, 255, 0.75);
+    --boton-fondo: #ffffff;
+    --boton-borde: #e4e4e0;
+    --linea: #e4e4e0;
+    --texto: #1c1c1a;
+    --texto-suave: #6b6b66;
+    --acento: #2d5f8a;
+    --acento-fuerte: #2d5f8a;
+    --acento-suave: #e8f0f7;
+
+    --exito: #2e7d52;
+    --exito-suave: #e6f2ea;
+    --aviso: #b8860b;
+    --aviso-suave: #fbf1dc;
+    --peligro: #b3401f;
+    --peligro-suave: #fbeae4;
+    --info: #3a5f8a;
+    --info-suave: #e8eef6;
+
+    --sombra: 0 2px 10px rgba(0, 0, 0, 0.06);
   }
 }
 
