@@ -75,4 +75,4 @@ No hay suite automatizada de CI. Para comprobar un cambio:
 
 ## Equipo
 
-Juan Gutiérrez y Camilo Escobar.
+Juan Gutiérrez, Camilo Escobar, Sebastian Vasquez y Juan Serrano.

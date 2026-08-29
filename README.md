@@ -1,4 +1,4 @@
-# Proyectos — Juan Gutiérrez & Camilo Escobar
+# Proyectos — Juan Gutiérrez, Camilo Escobar, Sebastian Vasquez & Juan Serrano
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)
@@ -78,4 +78,4 @@ Ambos proyectos comparten los mismos principios, aplicados de forma independient
 
 ## Equipo
 
-**Juan Gutiérrez** y **Camilo Escobar** — desarrolladores.
+**Juan Gutiérrez**, **Camilo Escobar**, **Sebastian Vasquez** y **Juan Serrano** — desarrolladores.

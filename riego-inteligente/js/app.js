@@ -529,7 +529,7 @@ const EXPORTERS = {
   json: () => {
     download(`proyecto-riego-${todayKey()}.json`, JSON.stringify({
       proyecto: 'Sistema de Riego Inteligente',
-      equipo: ['Juan Gutiérrez', 'Camilo Escobar'],
+      equipo: ['Juan Gutiérrez', 'Camilo Escobar', 'Sebastian Vasquez', 'Juan Serrano'],
       exportado: new Date().toISOString(),
       configuracion: { modo: state.mode, umbral: state.threshold, escenario: state.scenario },
       estadisticas: state.stats,
@@ -573,7 +573,7 @@ function buildReport(diag) {
  @media print{body{margin:0}}
 </style></head><body>
 <h1>Sistema de Riego Inteligente</h1>
-<p class="meta">Informe generado el ${new Date().toLocaleString('es')} · Juan Gutiérrez y Camilo Escobar</p>
+<p class="meta">Informe generado el ${new Date().toLocaleString('es')} · Juan Gutiérrez, Camilo Escobar, Sebastian Vasquez y Juan Serrano</p>
 
 <h2>1. Estado actual del sistema</h2>
 <table>
